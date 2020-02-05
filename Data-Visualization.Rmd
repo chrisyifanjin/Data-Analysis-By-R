@@ -99,6 +99,122 @@ It can be seen that `cyl` only take certain values which is discrete variable. T
 
 *The greatest value of a picture is when it forces us to notice what we never expected to see*
 
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))
+```
+
+There are some points on the right which is outside the general trend. There may be other factors that affect hwy.
+ 
+We can add `class` variable 
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,color=class))
+```
+
+The colors reveal that many of the unusual points are two-seater cars.
+
+Not only the color can be used for categorical variable, but also the size.
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,size=class))
+```
+
+We could also mapped `class` to the alpha aesthetic, which controls the transparency of the points, or to the shape aesthetic, which controls the shape of the points.
+
+```{r}
+
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,alpha=class))
+
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,shape=class))
+```
+
+However, for shape method, maximum shape in a graph is 6, there are seven. the additional groups are unplotted.
+ 
+We also can directly add color to the plot.
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy),color="blue")
+```
+
+### Exercise
+
+**1. What is gone wrong with this code? Why are the points not blue?**
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,color="blue"))
+```
+
+**Answer** 
+
+It shouldn't inside the aes bracket.
+
+**2. Which variables in `mpg` are categorical? Which variables are continuous? use`?mpg`how can you see this information when you run `mpg`**
+
+```{r}
+mpg
+```
+
+We can see this by seeing data structure
+
+**3. Map a continuous variable to `color`, `size`, and `shape`. How do these aesthetics behave differently for categorical vs. continuous variables?**
+
+**Answer**
+Nothing
+
+**4. What happens if you map the same variable to multiple aesthetics**
+
+```{r}
+ggplot(data=mpg)+geom_point(aes(x=cty,y=cty),stroke=1)
+```
+
+**Answer**
+It will form a 45 degree line.
+
+
+**6. What happens if you map an aesthetic to something other than a variable name, like aes(colour = displ < 5)? Note, you’ll also need to specify x and y.**
+
+```{r}
+ggplot(data=mpg)+geom_point(aes(x=cty,y=hwy,color=displ<5))
+```
+
+**Answer**
+
+It distinguishs data point with the displ with <5 and >5.
+
+## Common problems
+
+Remember to use pairness and put everything on th right position.
+
+## Facets
+Facets is particularly useful for categorical variables, is to split your plot into facets.
+
+`facet_wrap`: first argument is `~`, which is followed by a variable name. the variable you pass to `facet_wrap` must be discrete
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy))+
+  facet_wrap(~cyl,nrow=2)
+```
+
+`facet_grid()`  is contain two discrete variables ~
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  facet_grid(drv~cyl)
+```
+
+If you prefer to not facet in the rows or columns dimension.
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  facet_grid(.~cyl)
+```
+
 
 
 

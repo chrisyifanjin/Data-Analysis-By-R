@@ -215,10 +215,163 @@ ggplot(data=mpg)+
   facet_grid(.~cyl)
 ```
 
+### Exercises
 
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  facet_grid(.~displ)
+```
 
+It actually will generate each category for each number of continuous variable
 
+## Geometric objects
 
+*Geom*
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))
+```
+
+```{r}
+ggplot(data=mpg)+
+  geom_smooth(mapping = aes(x=displ,y=hwy))
+```
+
+Every geom function in ggplot2 takes a `mapping` argument. However, not every aesthetic works with every geom.You could set shape of the points but not shape of the line. On the other hand, you could set the linetype of a line. `geom_smooth()` will draw a different line, with different linetype.
+
+```{r}
+ggplot(data=mpg)+
+  geom_smooth(mapping=aes(x=displ,y=hwy,linetype=drv))
+```
+
+It separates the cars into three lines based on their `drv` value, which describes a car's drivetrain.
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+              
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+    
+ggplot(data = mpg) +
+  geom_smooth(
+    mapping = aes(x = displ, y = hwy, color = drv),
+    show.legend = FALSE
+  )
+```
+
+To display multiple geoms in the same plot, add multiple geom functions to `ggplot()`:
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  geom_smooth(mapping=aes(x=displ,y=hwy))
+```
+
+Or equivalently,
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy))+
+  geom_point()+
+  geom_smooth()
+```
+
+We can also add the color
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy))+
+  geom_point(mapping = aes(color=class))+
+  geom_smooth()
+```
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy))+
+  geom_point(mapping=aes(color=class))+
+  geom_smooth(data=filter(mpg,class=="subcompact"),se=FALSE)
+```
+
+Just plot the data which class=cubcompact
+
+### Exercises
+
+**1. What geom would you use to draw a line chart? A boxplot? A histogram? An area chart?**
+
+**Answer**
+
+geom_line(), geom_box(), geom_histogram()
+
+**2. Running this code predict what the output will look like. Then, run the code in R and check your predictions**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth(se =F)
+```
+
+**Answer**
+
+se=false means no shaded areas.
+
+**3. What does `show.legend=FALSE` do? What happens if you remove it? Why do you think I used it ealier in the chapter?**
+
+**Answer**
+
+It means the graph do not show the upper right corner of the tag.
+
+**4. Will these graphs look different? Why/why not?**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+```
+
+**Answer**
+
+Nothing is different. Since it is same to put different positions.
+
+**6. Recreate the R code necessary to generate the following grpahs.**
+
+```{r}
+ggplot(data=mpg,mapping = aes(x=displ,y=hwy))+
+  geom_point()+
+  geom_smooth(se=F)
+```
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy,group=drv))+
+  geom_point()+
+  geom_smooth(se=F)
+```
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy))+
+  geom_point(mapping = aes(color=drv))+
+  geom_smooth(se=F,mapping=aes(color=drv))
+```
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy))+
+  geom_point(mapping = aes(color=drv))+
+  geom_smooth(se=F)
+```
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy,linetype=drv))+
+  geom_point(mapping = aes(color=drv))+
+  geom_smooth(se=F)
+```
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=displ,y=hwy))+
+  geom_point(mapping = aes(color=drv,stroke=1))
+```
+
+## Statistical transformations
 
 
 

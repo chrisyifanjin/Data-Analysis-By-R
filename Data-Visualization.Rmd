@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, warning=FALSE}
 library(tidyverse)
+# install.packages("maps")
+library(maps)
 ```
 
 We can employ function by using `package::function()` eg. `ggplot2::ggplot()` or directly using function eg. `ggplot()`
@@ -373,6 +375,239 @@ ggplot(data=mpg,mapping=aes(x=displ,y=hwy))+
 
 ## Statistical transformations
 
+Firstly look at the bar chart, `geom_bar()`. We can group diamonds by cut. The chart shows that more diamonds are available with high quality cuts than with low quality cuts.
+
+```{r}
+ggplot(data=diamonds)+
+  geom_bar(mapping=aes(x=cut))
+```
+
+x-axis: `cut`
+y-axis: `count`
+
+`stat_count()` is documented on the same page as `geom_bar`, and if you scroll down you can find a section called "Computed variables"
+
+Generally, we can use `stat_count()` and `geom_bar()` interchangeably
+
+```{r}
+ggplot(data=diamonds)+
+  stat_count(mapping=aes(x=cut))
+```
+
+
+```{r}
+demo <-tribble(
+  ~cut,    ~freq,
+  "Fair",    1610,
+  "Good",    4906,
+  "Very Good", 12082,
+  "Premium",   13791,
+  "Ideal",     21551
+)
+
+ggplot(data=demo)+
+  geom_bar(mapping=aes(x=cut,y=freq),stat="identity")
+```
+
+```{r}
+ggplot(data=diamonds)+
+  geom_bar(mapping=aes(x=cut,y=stat(prop),group=1))
+```
+
+To draw greater attention to the statistical transformation in your code. `stat_summary()` which summarises the y values for each unique x value, to draw attention to the summary that you are computing
+
+```{r}
+ggplot(data=diamonds)+
+  stat_summary(
+    mapping = aes(x=cut,y=depth),
+    fun.ymin=min,
+    fun.ymax=max,
+    fun.y=median
+  )
+```
+
+### Exercise
+**1.What is the default geom associated with `stat_summary()?` How could you rewrite the previous plot to use that geom function instead of the stat function?** 
+
+**Answer**
+
+```{r}
+ggplot(data=diamonds)+
+  geom_line(
+    mapping = aes(x=cut,y=depth)
+  )
+```
+
+**2. What does `geom_col()` do? How is it different to `geom_bar()`?**
+
+```{r}
+ggplot(data=diamonds)+
+  geom_col(
+    mapping = aes(x=cut,y=depth)
+  )
+
+ggplot(data=diamonds)+
+  geom_bar(
+    mapping = aes(x=cut,y=depth),stat="identity"
+  )
+```
+
+**Answer**
+
+The geom_col directly use stat to transform our data, but geom_bar need stat="identity
+
+## Position adjustsment
+We can colour a bar chart using either the `colour` aesthetic, or, more usefully, `fill`:
+```{r}
+ggplot(data=diamonds)+
+  geom_bar(mapping=aes(x=cut,colour=cut))
+
+# Or alternatively,
+
+ggplot(data=diamonds)+
+  geom_bar(mapping=aes(x=cut,fill=cut))
+```
+
+You can also map the fill aesthetic to another variable, like `clarity`: the bars are automatically stacked. 
+
+```{r}
+ggplot(data=diamonds)+
+  geom_bar(mapping=aes(x=cut,fill=clarity))
+```
+
+1. `position="identity"` will place each object exactly where it falls in the context of the graph
+
+```{r}
+ggplot(data=diamonds,mapping = aes(x=cut,fill=clarity))+
+  geom_bar(alpha=1/5,position="identity")
+ggplot(data=diamonds,mapping=aes(x=cut,color=clarity))+
+  geom_bar(fill=NA,position="identity")
+```
+
+2. `position="fill"` works like stacking, but makes each set of stacked bars the same height. This makes it easier to compare proportions across groups.
+
+```{r}
+ggplot(data=diamonds)+
+  geom_bar(mapping=aes(x=cut,fill=clarity),position = "fill")
+```
+
+3. `position="dodge"` places overlapping objects directly beside one another. This makes it easier to compare individual values
+
+```{r}
+ggplot(data=diamonds)+
+  geom_bar(mapping=aes(x=cut,fill=clarity),position="dodge")
+```
+
+4. `position="jitter"` adds a small amount of random noise to each point. This spreads the points out because no two points are likely to receive the same amount of random noise.
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy),position="jitter")
+```
+
+We can use `geom_point(position="jitter")` and `geom_jitter()`
+`?position_fill()` can find what is the structure of the function
+
+### Exercises
+
+**1. What is the problem with this plot? How could you improve it?**
+
+**Answer**
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=cty,y=hwy))+
+  geom_point(position="jitter",size=2)
+```
+
+The data is seemly perfect, we should add random noise to each data point, to improve randomness.
+
+**2. What parameters to `geom_jitter()` control the amount of jittering?**
+
+**Answer**
+
+?geom_jitter
+
+**3. Compare and contrast `geom_jitter()` with `geom_count()`.**
+
+**Answer**
+
+```{r}
+ggplot(data=mpg,mapping=aes(x=cty,y=hwy))+
+  geom_count(position="jitter")
+```
+
+## Coordinate systems
+
+`coord_flip()` switches the x and y
+```{r}
+ggplot(data=mpg,mapping = aes(x=class,y=hwy))+
+  geom_boxplot()
+
+ggplot(data=mpg,mapping = aes(x=class,y=hwy))+
+  geom_boxplot()+
+  coord_flip()
+```
+
+`coord_quickmap()` sets the aspect ratio correctly for maps. This is very important if you are plotting spatial data with ggplot2
+
+```{r}
+nz<-map_data("nz")
+ggplot(nz,aes(long,lat,group=group))+
+  geom_polygon(fill="white",colour="black")
+ggplot(nz,aes(long,lat,group=group))+
+  geom_polygon(fill="white",color="black")+
+  coord_quickmap()
+```
+
+`coord_polar()` uses polar coordinates. Polar coordinates reveal an interestig connection between a bar chart and a Coxcomb chart
+
+```{r}
+bar<-ggplot(data=diamonds)+
+  geom_bar(
+    mapping = aes(x=cut,fill=cut),
+    show.legend = F,
+    width=1
+  )+
+  theme(aspect.ratio = 1)+
+  labs(x=NULL,y=NULL)
+bar+coord_flip()
+bar+coord_polar()
+
+```
+
+
+### Exercises
+**1. Turn a stacked bar chart into a pie chart using 'coord_polar()`**
+
+**Answer**
+
+```{r}
+bar<-ggplot(data=mpg,aes(x=hwy,fill=hwy))+
+  geom_bar()
+bar+coord_polar()
+```
+
+**2. What does `labs()` do?**
+
+**Answer**
+```{r}
+?labs
+```
+
+
+## The layered grammar of graphics
+
+```{}
+# ggplot(data = <DATA>) + 
+#  <GEOM_FUNCTION>(
+#     mapping = aes(<MAPPINGS>),
+#     stat = <STAT>, 
+#     position = <POSITION>
+#  ) +
+#  <COORDINATE_FUNCTION> +
+#  <FACET_FUNCTION>
+
+```
 
 
 

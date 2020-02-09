@@ -1,0 +1,82 @@
+---
+title: "Basic workflow"
+author: "Yifan Jin"
+date: "09/02/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Coding basics
+
+```{r}
+1/200*30
+sin(pi/2)
+# You can also assign a value to a variable
+x<- 3*4
+# object_name<-value
+```
+
+## What's in a name?
+We need to use `_` and `.` 
+```{r}
+# i_use_snake_case
+# otherPeopleUseCameCase
+# some.people.use.periods
+# And_aFew.People_RENOUNCEconvention
+```
+
+```{r}
+# You can inspect an object by typing its name
+x
+# make another assignment
+this_is_a_really_long_time<-2.5
+this_is_a_really_long_time<-3.5
+```
+
+```{r}
+# Make another assignment
+r_rocks<-2^3
+# r_rock and R_rocks is not gonna be work
+```
+
+## Calling functions
+```{r}
+# function_name(arg1=var1,arg2=val2)
+```
+
+Remeber when you deisgn a function your environment will help you store the function and also the variable you assigned
+
+### Exercise
+**1. Why does this code not work?**
+```{r}
+my_variable<-10
+# my_var1able
+```
+**Answer**
+
+You should change my_var1able to my variable...
+
+**2.Tweak each of the following R commands so that they run correctly**
+
+**Answer**
+```{r}
+library(tidyverse)
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))
+filter(mpg,cyl==8)
+filter(diamonds,carat>3)
+# completed
+```
+
+**3. Press Alt + Shift + K. What happens? How can you get to the same place using the menus?**
+
+**Answer**
+
+We can see all the command we can use.
+
+

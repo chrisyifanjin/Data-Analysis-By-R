@@ -1,0 +1,204 @@
+---
+title: "Data transformation"
+author: "Yifan Jin"
+date: "09/02/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Visualisation is an important tool for insight generation, but it is rare that you get the data in exactly the right form you need. We may need to create, summarises, rename, reorder vairables.
+
+### Prerequisites
+
+```{r,warning=FALSE}
+# install.packages("nycflights13")
+library(nycflights13)
+library(tidyverse)
+```
+
+### nycflights13
+
+```{r}
+flights
+```
+
+`int`: intergers
+
+`dbl`: doubles, or real numbers
+
+`chr`: character vectors, or strings
+
+`dttm`: date-times (a date+ a time)
+
+`lgl`: logical, vectors that contain only `TRUE` or `FALSE`
+
+`fctr`: factors, which R uses to represent categorical variables with fixed possible values
+
+`date`: dates
+
+### dplyr basics
+
+`filter()`: pick observations by their values
+
+`arrange()`: reorder the rows
+
+`select()`: pick variables by their names
+
+`mutate()`: create new variables with functions of existing variable
+
+`summarise()`: collapse many values down to single summary
+
+All verbs work similarly:
+
+1. The first argument is a data frame.
+
+2. The subsequent arguments describe what to do with the data frame, using the variable names (without quotes)
+
+3. The result is a new data frame
+
+
+## Filter rows with filter()
+
+`filter()` allows you to subset observations based on their values. The first argument is the name of the data frame. The second and subsequent arguments are the expressions that filter the data frame.
+
+```{r}
+filter(flights,month==1,day==1)
+```
+
+```{r}
+jan1<-filter(flights,month==1,day==1)
+
+(dec25<-filter(flights,month==12,day==25))
+# brackets that we can print the result
+```
+
+### Comparisons
+
+Comparison operator: `>`, `>=`, `<`,`<=`, `!=` and `==`
+
+```{r}
+# filter(flights,month=1) This is false since we need to use ==
+sqrt(2)^2==2
+1/49*49==1
+# This result is surprising, when we compare two numbers, one is floating, one is integer
+
+#Instead of relying on `==`, we use near()
+
+near(sqrt(2)^2,2)
+near(1/49*49,1)
+```
+
+### Logical operators
+`&`: and
+
+`|`: or
+
+`!`: not
+
+```{r}
+filter(flights,month==11|month==12)
+
+# or
+
+nov_dec<-filter(flights,month %in% c(11,12))
+```
+
+### Missing values
+```{r}
+NA>5
+
+10==NA
+
+NA+10
+
+NA/2
+```
+
+```{r}
+NA==NA
+
+X<-NA
+Y<-NA
+X==Y
+```
+
+```{r}
+df<-tibble(x=c(1,NA,3))
+filter(df,x>1)
+filter(df,is.na(x)|x>1)
+```
+
+### Exercises
+
+**1.Find all flights that had an arrival delay of two or more hours**
+
+**Answer**
+
+```{r}
+filter(flights,arr_delay>120)
+```
+
+**2. Find all flights that Flew to Houston (`IAH` or `HOU`)**
+
+**Answer**
+
+```{r}
+filter(flights,dest=="IAH"|dest=="HOU")
+```
+
+**3. Find all flights that were operated by United, American, or Delta**
+
+**Answer**
+
+```{r}
+filter(flights,carrier=="UA"|carrier=="AA"|carrier=="DL")
+```
+
+**4. Departed in summer (July, August, and September)**
+
+**Answer**
+
+```{r}
+filter(flights,month==7|month==8|month==9)
+```
+
+**5. Arrived more than two hours late, but didn't leave late**
+
+```{r}
+filter(flights,arr_delay>120|dep_delay<=0)
+```
+
+**6.Were delayed by at least an hours late, but made up over 30 minutes in flight**
+
+**Answer**
+
+```{r}
+filter(flights,arr_delay<dep_delay-30|dep_delay>=60)
+```
+
+**7. Departed between midnight and 6am (inclusive)**
+
+**Answer**
+```{r}
+filter(flights,dep_time>=000&dep_time<=600)
+```
+
+**8. Another useful dplyr filtering helper is `between()`. What does it do? **
+
+**Answer**
+
+```{r}
+filter(flights,between(dep_time,000,600))
+```
+
+```{r}
+filter(flights,is.na(dep_time))
+```
+
+## Arrange rows with arrange()
+

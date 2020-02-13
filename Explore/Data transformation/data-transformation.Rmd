@@ -350,8 +350,57 @@ mutate(flights_sml,
 ```
 
 
+```{r}
+# You can refer to columns that you have just created
+mutate(flights_sml,
+       gain=dep_delay-arr_delay,
+       hours=air_time/60,
+       gain_per_hours=gain/hours)
+```
 
 
+If you only want to keep the new variables, use `transmute()`
 
+```{r}
+transmute(flights,
+          gain=dep_delay-arr_delay,
+          hours=air_time/60,
+          gain_per_hour=gain/hours)
+```
+
+### Useful creation functions
+
+There are many functions for creating new variables that you can use with `mutate()`. The key property is that the function must be vectorised: it must take a vector of values as input, return a vector with the same number of values as output. There is no way to list every possible function that you might use, but there is a selection of functions that are frequently useful:
+
+1. Arithmetic operators: `+`,`-`,`*`,`/`,`^`. These are all vectorised using the so called "recycling rules". `x/sum(x)`- calculate the proportion of a total, `y-mean(y)`- calculate the difference from the mean
+
+2. Modular airthmetic: `%/%` (integer division) and `%%` (remainder), where `x==y*(x%/%y)+(x%%y)`. Modular arithmetic is a handy tool because it allows you to break integers up into pecies.
+
+```{r}
+transmute(flights,
+          dep_time,
+          hour=dep_time%/% 100,
+          minute=dep_time %%100)
+```
+
+3. Cumulative and rolling aggregates: R provides functions for running sums, products, mins and maxes: `cumsum()`, `cumprod()`, `cummin()`, `cummax()`; and dplyr provides `cummean()` for cumulative means.
+
+```{r}
+x<-c(1,2,3,4,5,6,7,8,9,10)
+cumsum(x)
+cummean(x)
+```
+
+4. Logical comparisons, `<`,`<=`,`>`,`>=`,`!=`, and `==`, which you learned earlier.
+
+5. Ranking: there are a number of ranking functions, but you should start with `min_rank()`, use desc to get largest to smallest.
+
+```{r}
+y<-c(1,2,2,NA,3,4)
+min_rank(y)
+min_rank(desc(y))
+```
+
+## Grouped summarises with summarise()
 
 

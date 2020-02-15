@@ -92,3 +92,68 @@ diamonds %>%
   count(cut_width(carat,0.5))
 ```
 
+A histogram divides the x-axis into equally bins and then uses the height of a bar to display the number of observations that fall in each bin. In the graph above, the tallest bar shows that almost 30000 observations that fall in each bin. In the graph above, the tallest bar shows that almost 30000 observations have `carat` value between 0.25 and 0.75, which are the left and right edges of the bar.
+
+You can choose the width of each interval with `binwidth` argument, which is measured in the units of the `x` variable.
+
+```{r}
+smaller<- diamonds %>%
+  filter(carat<3)
+ggplot(data=smaller,mapping=aes(x=carat))+
+  geom_histogram(binwidth=0.1)
+```
+
+If you wish to overlay multiple histograms in the same plot, I recommend using `geom_freqpoly()` instead of `geom_histogram()`. `geom_frepoly()` performs the same calculation as `geom_histogram()`, but instead of displaying the counts with bars, uses lines instead. It is much easier to understand overlapping lines than bars.
+
+```{r}
+ggplot(data=smaller,mapping=aes(x=carat,color=cut))+
+  geom_freqpoly(binwidth=0.1)
+```
+
+### Typical values
+
+In both bar charts and histograms, tall bars show the common values of a variable, and shorter bars show less-common values.
+
+`Typical questions`
+
+1. What values are the most common? Why?
+
+2. Which values are rare? Why? Does that match your expectation?
+
+3. Can you see any unusual patterns? What might explain them?
+
+As an example, the histogram below suggests several interesting questions:
+
+1. Why are there more diamonds at whole carates and common fractions of carats?
+
+2. Why are there more diamonds slightly to the right of each peak than there are slightly to left of each peak?
+
+3. Why are there no diamonds bigger than 3 carats?
+
+
+```{r}
+ggplot(data=smaller,mapping=aes(x=carat))+
+  geom_histogram(binwidth = 0.01)
+```
+
+Clusters of similar values suggest that subgroups exist in your data. To understand the subgroups, ask:
+
+1. How are the observations within each cluster similar to each other?
+
+2. How are the observations in separate clusters different from each other?
+
+3. How can you explain or describe the clusters?
+
+4. Why might the appearance of clusters be misleading?
+
+
+```{r}
+ggplot(data=faithful,mapping=aes(x=eruptions))+
+  geom_histogram(binwidth = 0.25)
+```
+
+This can be divided into 2 groups.
+
+### Unusual values
+
+

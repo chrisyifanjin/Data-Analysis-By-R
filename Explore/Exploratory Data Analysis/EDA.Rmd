@@ -35,7 +35,7 @@ library(tidyverse)
 
 Your goal during EDA is to develop an understanding of your data. The easiest way to do this is to use questions as tools to guide your investigation. When you ask a question, the question focuses your attention on a specific part of your dataset and helps you decide which graphs, models, or transformations to make.
 
-EDA is fundamentally a creative process. And like most creative processes, the key to asking quality questions is to generate of questions. It is difficult to ask revealing questions at the start of your analysis because you do not know what insights are contained in your dataset. On the other hand, each new question taht you ask will expose you to a new aspect of data and increase your chance of making a discovery. 
+EDA is fundamentally a creative process. And like most creative processes, the key to asking quality questions is to generate of questions. It is difficult to ask revealing questions at the start of your analysis because you do not know what insights are contained in your dataset. On the other hand, each new question that you ask will expose you to a new aspect of data and increase your chance of making a discovery. 
 
 There is no rule about which questions you should ask to guide your research. 
 However, two types of questions will always be useful for making discoveries within your data.
@@ -64,6 +64,7 @@ Variation is the tendency of the values of a variable to change from measuremnet
 
 ### Visualising distributions
 
+**For discrete variables: barplot**
 A variable is `categorical` if it can only take one of a small set of values. In R, categorical variables are usually saved as factors or character vectors. To examine the distribution of a categorical variable, use a bar cahrt
 
 ```{r}
@@ -78,6 +79,7 @@ diamonds %>%
   count(cut)
 ```
 
+**For continuous variables: histogram**
 A variable is `continuous` if it can take any of an infinite set of ordered values. Numbers and date-times are two examples of continuous variables. To examine the distribution of a continuous variable, we use histogram
 
 ```{r}
@@ -103,6 +105,7 @@ ggplot(data=smaller,mapping=aes(x=carat))+
   geom_histogram(binwidth=0.1)
 ```
 
+**For different category, display the continuous variable for each category: multiple display**
 If you wish to overlay multiple histograms in the same plot, I recommend using `geom_freqpoly()` instead of `geom_histogram()`. `geom_frepoly()` performs the same calculation as `geom_histogram()`, but instead of displaying the counts with bars, uses lines instead. It is much easier to understand overlapping lines than bars.
 
 ```{r}
@@ -136,6 +139,8 @@ ggplot(data=smaller,mapping=aes(x=carat))+
   geom_histogram(binwidth = 0.01)
 ```
 
+**Clustering**
+
 Clusters of similar values suggest that subgroups exist in your data. To understand the subgroups, ask:
 
 1. How are the observations within each cluster similar to each other?
@@ -155,5 +160,84 @@ ggplot(data=faithful,mapping=aes(x=eruptions))+
 This can be divided into 2 groups.
 
 ### Unusual values
+
+Outliers are observations that are unusual; data points that don't seem to fit the pattern. Sometimes, outliers are data entry errors; other times outliers suggest new important science.
+
+When you have a lot of data, outliers are sometimes difficult to see in a histogram. For example, take the distribution of `y` variable from the diamonds dataset. The only evidence of outliers is the unusually wide limits on the x-axis.
+
+```{r}
+ggplot(diamonds)+
+  geom_histogram(mapping=aes(x=y),binwidth=0.5)
+```
+
+There are so many observations in the common bins that the rare bins are so short that you cannot see them. To make it easy to see the unusual values, we need to zoom to small values of the y-axis with `coord_cartesian()`:
+
+```{r}
+ggplot(diamonds)+
+  geom_histogram(mapping = aes(x=y),binwidth=0.5)+
+  coord_cartesian(ylim=c(0,50))
+```
+
+(`coord_cartesian()` also has an `xlim()` argument for when you need to zoom into the x-axis. ggplot2 also has `xlim()` and `ylim()` functions that work slightly differently: they throw away the data outside the limits)
+
+This allows us to see that there are three unusual values: 0, ~30, and ~60. We pluck them out with dplyr:
+
+```{r}
+unusual<-diamonds %>%
+  filter(y<3|y>20) %>%
+  select(price,x,y,z)%>%
+  arrange(y)
+unusual
+```
+
+We know that diamonds cannot have a width of 0mm, so these values must be incorrect. We might suspect that measurements of 32mm and 59mm are implausible: those diamonds are over an inch long, but don't cost hundreds of thousands of dollars!
+
+Strategy: If the outliers doesn't affect the results too much, we can drop it can replace it with missing values. However, if it has huge effect, we can't drop it without justification. You need to figure out what caused them(data entry error) and disclose that you removed them in your write-up.
+
+### Exercises
+
+**1. Explore the distribution of each of the `x`,`y`, and `z` variables in `diamonds`. What do you learn? Think about a diamond and how you might decide which dimension is the length, width and depth.**
+
+**Answer**
+
+```{r}
+ggplot(diamonds)+
+  geom_histogram(mapping=aes(x=x),binwidth = 0.1)+
+  coord_cartesian()
+```
+
+```{r}
+ggplot(diamonds)+
+  geom_histogram(mapping=aes(x=y),binwidth = 0.1)+
+  coord_cartesian()
+```
+
+```{r}
+ggplot(diamonds)+
+  geom_histogram(mapping=aes(x=z),binwidth = 0.1)+
+  coord_cartesian()
+```
+
+**2. Explore the distribution of `price`. Do you discover anything unusual or surprising? (Hint: Carefully think about the `binwidth` and make sure you try a wide range of values)**
+
+**Answer**
+
+It is quite suprising that most diamonds are relatively cheap.
+```{r}
+ggplot(diamonds)+
+  geom_histogram(mapping=aes(x=price),binwidth = 1)
+```
+
+**3. How many diamonds are 0.99 carat? How many are 1 carat? What do you think is the cause of the difference**
+
+```{r}
+carat_99=diamonds %>% filter(carat==0.99) %>%count()
+carat_100=diamonds %>% filter(carat==1) %>% count()
+carat_99
+carat_100
+```
+
+
+## Missing values
 
 
